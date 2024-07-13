@@ -17,7 +17,7 @@ lats = np.arange(53.75, 17.75, -0.5)
 def perform_gev(ssp, index, lon, lat):
     totest = np.array([])  # 用于存储数据的数组
     for year in years:
-        data_path = f'E:/GEO/etccdi/qpm/mme/new/{index}_{ssp}_{year}.nc'
+        data_path = f'E:/GEO/etccdi/qpm/mme/ecm/{index}_{ssp}_{year}.nc'
         data = xr.open_dataset(data_path)['__xarray_dataarray_variable__'].sel(lon=lon, lat=lat)
         totest = np.append(totest, data)
 
@@ -69,7 +69,7 @@ if __name__ == '__main__':
                 gev_results_df.columns = ['loc', 'scale', 'shape', 'precipitation_3_year', 'precipitation_10_year', 'precipitation_20_year', 'precipitation_50_year', 'precipitation_100_year']
 
                 # 将数据帧保存为 NetCDF 文件
-                gev_results_df.to_xarray().to_netcdf(f'E:/GEO/result/new/{ssp}{index}_lom_GEV.nc')
+                gev_results_df.to_xarray().to_netcdf(f'E:/GEO/result/ecm/{ssp}{index}_lom_GEV.nc')
                 for task in concurrent.futures.as_completed(tasks):
                     task.result()  # 等待任务完成，不处理返回值
                     pbar.update(1)

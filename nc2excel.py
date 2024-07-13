@@ -3,16 +3,20 @@ import xarray as xr
 import numpy as np
 from concurrent.futures import ProcessPoolExecutor
 import multiprocessing
+import geopandas as gpd
+import salem
 
-ssp_values = ['obs', '126', '585']  # 将字符串改为整数
+ssp_values = ['obs']  # 将字符串改为整数
 index_values = ['r95p', 'r99p', 'rx1day']  # 保持字符串不变
 lons = np.arange(72.25, 136.25, 0.5)
 lats = np.arange(53.75, 17.75, -0.5)
-
+shp_dir = 'E:/GEO/result/geodata/ecm_el.shp'
+shp = gpd.read_file(shp_dir)
 
 def read_nc_file(ssp, index):
     data_path = f'E:/GEO/result/qpm/cut/{ssp}{index}_lom_GEV.nc'
     dataset = xr.open_dataset(data_path)
+    dataset = dataset.salem.roi(shape=shp)
     return dataset
 
 
@@ -54,5 +58,5 @@ if __name__ == '__main__':
             # 将结果写入Excel文件
             df = pd.DataFrame(result).T.reset_index()
             df.columns = ['Lon', 'Lat', 'Loc', 'Scale', 'Shape']
-            excel_file = f'E:/GEO/result/{ssp}{index}_lom_GEV.xlsx'
+            excel_file = f'E:/GEO/result/ecm/{ssp}{index}_lom_GEV.xlsx'
             df.to_excel(excel_file, index=False)

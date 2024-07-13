@@ -5,7 +5,7 @@ from sklearn.preprocessing import StandardScaler
 import pandas as pd
 for index in ('rx1day','r95p','r99p'):
     # 读取Excel文件
-    data_path = f'E:/GEO/result/obs{index}_lom_GEV.xlsx'
+    data_path = f'E:/GEO/result/ecm/obs{index}_lom_GEV.xlsx'
     data = pd.read_excel(data_path)
     data = data.to_numpy()
 
@@ -57,4 +57,4 @@ for index in ('rx1day','r95p','r99p'):
     result_df.columns = ['loc', 'scale', 'shape', 'cluster']
 
     # 将结果保存为NetCDF文件
-    result_df.to_xarray().to_netcdf(f'E:/GEO/result/obs{index}cluster_coor.nc')
+    result_df.to_xarray().to_netcdf(f'E:/GEO/result/ecm/obs{index}cluster_coor.nc')

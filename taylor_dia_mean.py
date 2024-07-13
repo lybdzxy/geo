@@ -1,10 +1,10 @@
 import pandas as pd
 
 # 读取Excel文件
-results_df = pd.read_excel('E:/GEO/etccdi/qpm/model_indices_results.xlsx')
+results_df = pd.read_excel('E:/GEO/etccdi/qpm/model_indices_results_new.xlsx')
 
 # 创建一个Excel写入对象
-with pd.ExcelWriter('E:/GEO/etccdi/qpm/model_indices_summary.xlsx') as writer:
+with pd.ExcelWriter('E:/GEO/etccdi/qpm/model_indices_summary_new.xlsx') as writer:
     # 按照不同指标分组
     for index, group in results_df.groupby('Index'):
         # 在当前工作表中按照模型分类并计算均值

@@ -7,7 +7,7 @@ import concurrent.futures
 import tqdm
 
 ssp_values = [126,585]  # 将字符串改为整数
-index_values = ['prcptot','r95p','r99p','r95ptot','r99ptot','sdii','rx1day']  # 保持字符串不变
+index_values = ['prcptot','r95p','r99p','sdii','rx1day']  # 保持字符串不变
 years = range(2015, 2069)
 lons = np.arange(72.25, 136.25, 0.5)
 lats = np.arange(53.75, 17.75, -0.5)
@@ -16,7 +16,7 @@ lats = np.arange(53.75, 17.75, -0.5)
 def perform_mk_test(ssp, index, lon, lat):
     totest = np.array([])  # 用于存储数据的数组
     for year in years:
-        data_path = f'E:/GEO/etccdi/qpm/mme/new/{index}_{ssp}_{year}.nc'
+        data_path = f'E:/GEO/etccdi/qpm/mme/ecm/{index}_{ssp}_{year}.nc'
         data = xr.open_dataset(data_path)['__xarray_dataarray_variable__'].sel(lon=lon, lat=lat)
         totest = np.append(totest, data)
     try:
@@ -30,7 +30,7 @@ def perform_mk_test(ssp, index, lon, lat):
 
 
 if __name__ == '__main__':
-    total_tasks = 2 * 7 *len(lons)*len(lats)
+    total_tasks = 2 * 5 *len(lons)*len(lats)
     with tqdm.tqdm(total=total_tasks, desc="处理中") as pbar:
         for ssp in ssp_values:
             for index in index_values:
@@ -47,6 +47,10 @@ if __name__ == '__main__':
                         lon, lat, trend, p, z, Tau, s, var_s, slope, intercept = task.result()
                         result[(lon, lat)] = (trend, p, z, Tau, s, var_s, slope, intercept)
 
+                for task in concurrent.futures.as_completed(tasks):
+                    task.result()  # 等待任务完成，不处理返回值
+                    pbar.update(1)
+
                 # 提取 MK 检验结果并保存为 Pandas 数据帧
                 mk_results_df = pd.DataFrame(result).T
                 if mk_results_df.empty:
@@ -57,7 +61,4 @@ if __name__ == '__main__':
                 mk_results_df.columns = ['trend', 'p', 'z', 'Tau', 's', 'var_s', 'slope', 'intercept']
 
                 # 将数据帧保存为 NetCDF 文件
-                mk_results_df.to_xarray().to_netcdf(f'E:/GEO/result/new/{ssp}{index}_mktest.nc')
-                for task in concurrent.futures.as_completed(tasks):
-                    task.result()  # 等待任务完成，不处理返回值
-                    pbar.update(1)
+                mk_results_df.to_xarray().to_netcdf(f'E:/GEO/result/ecm/{ssp}{index}_mktest.nc')
