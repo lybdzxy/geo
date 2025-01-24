@@ -33,7 +33,7 @@ for ssp in ssps:
 
         norm = BoundaryNorm(boundary, len(scaled_colors))
 
-        dataset_path = f'E:/GEO/result/qpm/svd/{index}_tos_{ssp}.nc'
+        dataset_path = f'E:/GEO/result/ecm/{index}_tos_{ssp}.nc'
         dataset = xr.open_dataset(dataset_path)
 
         # 获取降水数据、经度和纬度
@@ -47,7 +47,7 @@ for ssp in ssps:
         ax = fig.subplots(1, 1, subplot_kw={'projection': proj})
 
         # 中国经纬度范围
-        region = [70, 140, 15, 55]
+        region = [90, 140, 15, 55]
         ax.set_extent(region, crs=proj)
 
         # 设置地图属性:加载国界、海岸线、河流、湖泊
@@ -84,5 +84,5 @@ for ssp in ssps:
         for geom in china:
             sub_ax.add_geometries([geom], ccrs.PlateCarree(), facecolor='none', edgecolor='black', linewidth=0.5, zorder=1)
 
-        plt.savefig(f'E:/GEO/result/new/pic/{index}_tos_{ssp}.png', dpi=600, bbox_inches='tight')
+        plt.savefig(f'E:/GEO/result/ecm/{index}_tos_{ssp}.png', dpi=600, bbox_inches='tight')
         plt.close()

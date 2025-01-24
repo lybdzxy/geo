@@ -33,7 +33,7 @@ for ssp in ssps:
 
         norm = BoundaryNorm(boundary, len(scaled_colors))
 
-        dataset_path = f'E:/GEO/result/qpm/svd/tos_{index}_{ssp}.nc'
+        dataset_path = f'E:/GEO/result/ecm/tos_{index}_{ssp}.nc'
         dataset = xr.open_dataset(dataset_path)
 
         # 获取降水数据、经度和纬度
@@ -73,5 +73,5 @@ for ssp in ssps:
         # 绘制边界等
         for geom in world:
             ax.add_geometries([geom], ccrs.PlateCarree(), facecolor='none', edgecolor='black', linewidth=0.5, zorder=1)'''
-        plt.savefig(f'E:/GEO/result/new/pic/tos_{index}_{ssp}.png', dpi=600, bbox_inches='tight')
+        plt.savefig(f'E:/GEO/result/ecm/tos_{index}_{ssp}.png', dpi=600, bbox_inches='tight')
         plt.close()

@@ -10,7 +10,7 @@ for ssp in ssps:
     for index in indices:
         # 定义文件路径
         tos_path = f'E:/GEO/CMIP6/tos/mme/tos_yearly_{ssp}.nc'
-        prcptot_path = f'E:/GEO/etccdi/qpm/mme/full/{index}_{ssp}.nc'
+        prcptot_path = f'E:/GEO/etccdi/qpm/mme/ecm/full/{index}_{ssp}.nc'
 
         # 加载NetCDF文件
         tos = xr.open_dataset(tos_path)
@@ -48,10 +48,10 @@ for ssp in ssps:
         frac = tos_prcptot.covFracs(n=2)
 
         # 定义保存路径
-        lp_output_path = f'E:/GEO/result/qpm/svd/tos_{index}_{ssp}.nc'
-        le_output_path = f'E:/GEO/result/qpm/svd/tos_{index}_{ssp}.xlsx'
-        rp_output_path = f'E:/GEO/result/qpm/svd/{index}_tos_{ssp}.nc'
-        re_output_path = f'E:/GEO/result/qpm/svd/{index}_tos_{ssp}.xlsx'
+        lp_output_path = f'E:/GEO/result/qpm/svd/ecm/tos_{index}_{ssp}.nc'
+        le_output_path = f'E:/GEO/result/qpm/svd/ecm/tos_{index}_{ssp}.xlsx'
+        rp_output_path = f'E:/GEO/result/qpm/svd/ecm/{index}_tos_{ssp}.nc'
+        re_output_path = f'E:/GEO/result/qpm/svd/ecm/{index}_tos_{ssp}.xlsx'
 
         # 将模式和扩展系数分别转换为 xarray 数据数组
         lp_da = xr.DataArray(lp, dims=['n', 'lon', 'lat'], name='leftPattern')
@@ -86,7 +86,7 @@ for ssp in ssps:
         frac_df_all = pd.concat([frac_df_all, frac_df], ignore_index=True)
 
 # 定义保存路径
-frac_output_path = 'E:/GEO/result/qpm/svd/all_frac.xlsx'
+frac_output_path = 'E:/GEO/result/qpm/svd/ecm/all_frac.xlsx'
 
 # 保存到 Excel 文件
 frac_df_all.to_excel(frac_output_path, index=False)

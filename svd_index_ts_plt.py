@@ -7,7 +7,7 @@ ssps = [126, 585]
 for ssp in ssps:
     for index in indices:
         # 读取 Excel 文件
-        data_path = f'E:/GEO/result/qpm/svd/{index}_tos_{ssp}.xlsx'
+        data_path = f'E:/GEO/result/ecm/{index}_tos_{ssp}.xlsx'
         data = pd.read_excel(data_path)
 
         # 将 'time' 列转换为 datetime 对象
@@ -28,5 +28,5 @@ for ssp in ssps:
         plt.grid(True)
 
         # 显示图表
-        plt.savefig(f'E:/GEO/result/new/pic/{index}_tos_{ssp}_ts.png', dpi=600, bbox_inches='tight')
+        plt.savefig(f'E:/GEO/result/ecm/pic/{index}_tos_{ssp}_ts.png', dpi=600, bbox_inches='tight')
         plt.close()

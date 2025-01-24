@@ -2,14 +2,14 @@ import os
 import xarray as xr
 import pandas as pd
 
-indices = ['prcptot', 'r95p', 'r99p', 'r95ptot', 'r99ptot', 'sdii', 'rx1day', 'r10mm', 'r20mm']
+indices = ['prcptot', 'r95p', 'r99p', 'sdii', 'rx1day']
 ssps = [126, 585]
 
 for index in indices:
     for ssp in ssps:
         merged = None  # 将 merged 初始化放在更小的范围内
         for year in range(2015, 2069):
-            file_path = f'E:/GEO/etccdi/qpm/mme/cut/{index}_{ssp}_{year}.nc'
+            file_path = f'E:/GEO/etccdi/qpm/mme/ecm/{index}_{ssp}_{year}.nc'
             if os.path.exists(file_path):
                 data = xr.open_dataset(file_path)
 
@@ -30,7 +30,7 @@ for index in indices:
             if '__xarray_dataarray_variable__' in merged.data_vars:
                 merged = merged.rename({'__xarray_dataarray_variable__': 'pr'})
 
-            output_path = f'E:/GEO/etccdi/qpm/mme/full/{index}_{ssp}.nc'
+            output_path = f'E:/GEO/etccdi/qpm/mme/ecm/full/{index}_{ssp}.nc'
             merged.to_netcdf(output_path)
             print(f"保存 {index} {ssp} 数据到 {output_path}")
         else:

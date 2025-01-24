@@ -5,15 +5,15 @@ import pandas as pd
 
 
 # 加载数据
-data_path = 'E:/GEO/result/pca_km.xlsx'
+data_path = 'E:/GEO/result/ecm/agglomerative_gap.xlsx'
 data = pd.read_excel(data_path)
 
 # 将数据转换为numpy数组
 data = data.to_numpy()
 
 # 定义特征和标签
-X = data[:, 2:4]  # 前两列作为特征
-y = data[:, 4]  # 第11列作为标签
+X = data[:, :2]  # 前两列作为特征
+y = data[:, 3]  # 第11列作为标签
 
 # 定义KNN分类器并拟合数据
 knn = KNeighborsClassifier(n_neighbors=10)
@@ -42,7 +42,7 @@ result_df = pd.DataFrame(result).T  # 转置数据
 result_df.columns = ['cluster','back']
 
 # 将结果保存为NetCDF文件
-result_df.to_xarray().to_netcdf('E:/GEO/result/pca_knn.nc')
+result_df.to_xarray().to_netcdf('E:/GEO/result/ecm/pca_hcc_knn.nc')
 
 
 '''plt.contourf(xx, yy, Z, alpha=1, cmap='Pastel1')  # 调整决策边界的颜色

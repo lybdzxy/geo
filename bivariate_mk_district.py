@@ -17,20 +17,35 @@ from matplotlib.colors import BoundaryNorm
 import geopandas as gpd
 import salem
 
-districts = ['NW', 'NE', 'SE']
-indices = ['prcptot', 'r95p', 'r99p', 'r95ptot', 'r99ptot', 'sdii', 'rx1day']
+districts = ['E', 'N', 'NC', 'NE', 'S', 'SC', 'W']
+indices = ['prcptot', 'r95p', 'r99p', 'sdii', 'rx1day']
 
 for index in indices:
     for district_name in districts:
-        district_path = f'E:/GEO/result/pca/{district_name}.shp'
+        district_path = f'E:/GEO/result/geodata/district/{district_name}.shp'
         district = gpd.read_file(district_path)
 
-        data126_path = f'E:/GEO/result/new/cut/126{index}_mktest.nc'
-        data585_path = f'E:/GEO/result/new/cut/585{index}_mktest.nc'
+        data126_path = f'E:/GEO/result/ecm/126{index}_mktest.nc'
+        data585_path = f'E:/GEO/result/ecm/585{index}_mktest.nc'
 
         data126 = xr.open_dataset(data126_path)
-        data126 = data126.salem.roi(shape=district)
         data585 = xr.open_dataset(data585_path)
+
+        # 确保数据集有标准的 lat 和 lon 坐标
+        if 'level_1' in data126.coords:
+            data126 = data126.rename({'level_1': 'lat'})
+        if 'level_0' in data126.coords:
+            data126 = data126.rename({'level_0': 'lon'})
+
+        if 'level_1' in data585.coords:
+            data585 = data585.rename({'level_1': 'lat'})
+        if 'level_0' in data585.coords:
+            data585 = data585.rename({'level_0': 'lon'})
+
+        data126 = data126.transpose('lat', 'lon')
+        data585 = data585.transpose('lat', 'lon')
+
+        data126 = data126.salem.roi(shape=district)
         data585 = data585.salem.roi(shape=district)
 
         trend126 = data126['trend']
@@ -69,12 +84,20 @@ for index in indices:
         ax = fig.subplots(1, 1, subplot_kw={'projection': proj})
 
         # 中国经纬度范围
-        if district_name =='SE':
-            region = [90, 130, 15, 40]
-        elif district_name =='NW':
-            region = [70, 110, 25, 50]
+        if district_name =='E':
+            region = [115, 127.5, 27.5, 45]
+        elif district_name =='N':
+            region = [100, 125, 30, 45]
+        elif district_name =='NC':
+            region = [105, 120, 30, 42.5]
         elif district_name =='NE':
-            region = [100, 140, 30, 55]
+            region = [117.5, 137.5, 40, 55]
+        elif district_name =='SC':
+            region = [105, 122.5, 20, 35]
+        elif district_name =='S':
+            region = [107.5, 117.5, 17.5, 25]
+        elif district_name =='W':
+            region = [95, 112.5, 20, 35]
 
         ax.set_extent(region, crs=proj)
 
@@ -85,7 +108,7 @@ for index in indices:
         # ax.add_feature(cfeature.LAKES.with_scale('50m'), zorder=1)
 
         # 设置网格点属性
-        gl = ax.gridlines(ylocs=np.arange(region[2], region[3] + 10, 10), xlocs=np.arange(region[0], region[1] + 10, 10),
+        gl = ax.gridlines(ylocs=np.arange(region[2], region[3] + 5, 5), xlocs=np.arange(region[0], region[1] + 5, 5),
                           draw_labels=True, linestyle='--', alpha=0.7)
         gl.xlabels_top = False
         gl.ylabels_right = False
@@ -128,5 +151,5 @@ for index in indices:
         cbar.ax.set_yticklabels(labels)
         '''
         # 显示图形
-        plt.savefig(f'E:/GEO/result/new/pic/mktest_districts/{index}_{district_name}_mk_trend.png', dpi=600, bbox_inches='tight')
+        plt.savefig(f'E:/GEO/result/ecm/pic/{index}_{district_name}_mk_trend.png', dpi=600, bbox_inches='tight')
         plt.close()

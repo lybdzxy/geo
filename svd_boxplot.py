@@ -15,13 +15,13 @@ fig, axes = plt.subplots(len(ssps), len(indices), figsize=(15, 10))
 # 遍历所有索引和 SSPs
 for i, ssp in enumerate(ssps):
     for j, index in enumerate(indices):
-        rp_output_path = f'E:/GEO/result/qpm/svd/tos_{index}_{ssp}.nc'
+        rp_output_path = f'E:/GEO/result/ecm/{index}_tos_{ssp}.nc'
 
         # 读取 NetCDF 文件
         dataset = nc.Dataset(rp_output_path)
 
         # 获取变量名（假设每个文件都有名为 'rightPattern' 的变量）
-        var_name = 'leftPattern'
+        var_name = 'rightPattern'
         var_data = dataset.variables[var_name][:]
 
         # 将数据转换为一维数组

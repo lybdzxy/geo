@@ -16,34 +16,69 @@ import numpy as np
 from matplotlib.colors import BoundaryNorm
 
 
-indices = ['prcptot', 'r95p', 'r99p', 'r95ptot', 'r99ptot', 'sdii', 'rx1day']
+indices = ['prcptot', 'r95p', 'r99p', 'sdii', 'rx1day']
 for index in indices:
-    data126_path = f'E:/GEO/result/new/cut/126{index}_mktest.nc'
-    data585_path = f'E:/GEO/result/new/cut/585{index}_mktest.nc'
+    data126_path = f'E:/GEO/result/ecm/126{index}_mktest.nc'
+    data585_path = f'E:/GEO/result/ecm/585{index}_mktest.nc'
     data126 = xr.open_dataset(data126_path)
     data585 = xr.open_dataset(data585_path)
-    trend126 = data126['trend']
-    trend585 = data585['trend']
-    trend126 = xr.where(trend126 == 1, 3, trend126)
-    trend126 = xr.where(trend126 == -1, 1, trend126)
-    trend126 = xr.where(trend126 == 0, 2, trend126)
-    trend585 = xr.where(trend585 == -1, 5, trend585)
-    trend585 = xr.where(trend585 == 0, 7, trend585)
-    trend585 = xr.where(trend585 == 1, 11, trend585)
+    ts_126 = data126['slope']
+    ts_585 = data585['slope']
 
-    trend = trend126 * trend585
+    # 将数据一维化并剔除 NaN
+    ts_126_flaten = ts_126.values[~np.isnan(ts_126.values)]
+    ts_585_flaten = ts_585.values[~np.isnan(ts_585.values)]
 
-    colors = [(170, 30, 33),
-              (249, 202, 222),
-              (255, 247, 149),
-              (85, 47, 146),
-              (230, 230, 230),
-              (0, 91, 50),
-              (134, 209, 212),
-              (181, 227, 250),
-              (0, 88, 168)]
+    # 计算百分之5和95百分位数
+    p5_126, p95_126 = np.percentile(ts_126_flaten, [1, 99])
+    p5_585, p95_585 = np.percentile(ts_585_flaten, [1, 99])
 
-    boundary = (4, 6, 8, 10.5, 12, 14.5, 18, 21.5, 25, 34)
+    # 选取百分之5到95百分位数的数据
+    ts_126_filtered = ts_126_flaten[(ts_126_flaten >= p5_126) & (ts_126_flaten <= p95_126)]
+    ts_585_filtered = ts_585_flaten[(ts_585_flaten >= p5_585) & (ts_585_flaten <= p95_585)]
+
+    # 计算标准差
+    std_126 = np.std(ts_126_filtered)
+    std_585 = np.std(ts_585_filtered)
+
+    # 为 ts_126 和 ts_585 创建新的变量来存储分类结果
+    classified_ts_126 = xr.full_like(ts_126, np.NAN)  # 初始化为全0数组
+    classified_ts_585 = xr.full_like(ts_585, np.NAN)  # 初始化为全0数组
+
+    # 对 ts_126 进行分类
+    classified_ts_126 = xr.where((ts_126 < (0 - std_126)), 1, classified_ts_126)
+    classified_ts_126 = xr.where((ts_126 < 0) & (ts_126 > (0 - std_126)), 2, classified_ts_126)
+    classified_ts_126 = xr.where((ts_126 < (0 + 1.5 * std_126)) & (ts_126 > 0), 3, classified_ts_126)
+    classified_ts_126 = xr.where((ts_126 > (0 + 1.5 * std_126)), 4, classified_ts_126)
+
+    # 对 ts_585 进行分类
+    classified_ts_585 = xr.where((ts_585 < (0 - std_585)), 1, classified_ts_585)
+    classified_ts_585 = xr.where((ts_585 < 0) & (ts_585 > (0 - std_585)), 5, classified_ts_585)
+    classified_ts_585 = xr.where((ts_585 < (0 + 1.5 * std_585)) & (ts_585 > 0), 30, classified_ts_585)
+    classified_ts_585 = xr.where((ts_585 > (0 + 1.5 * std_585)), 150, classified_ts_585)
+
+    # 最终的 trend 计算
+    slope = (classified_ts_126 * classified_ts_585).T
+
+    colors =[(242, 115, 0),
+            (230, 200, 128),
+            (149, 230, 125),
+            (0, 136, 54),
+            (242, 153, 145),
+            (255, 231, 217),
+            (217, 255, 230),
+            (108, 217, 211),
+            (230, 127, 182),
+            (255, 216, 243),
+            (222, 217, 255),
+            (138, 173, 229),
+            (241, 0, 139),
+            (230, 128, 230),
+            (188, 127, 230),
+            (90, 78, 164),
+            ]
+
+    boundary = (0,1.5,2.5,3.5,4.5,7,12,17,25,50,70,100,130,200,350,500,700)
 
     # 根据颜色列表创建颜色映射
     scaled_colors = [(r / 255, g / 255, b / 255) for r, g, b in colors]
@@ -57,7 +92,7 @@ for index in indices:
     ax = fig.subplots(1, 1, subplot_kw={'projection': proj})
 
     # 中国经纬度范围
-    region = [70, 140, 15, 55]
+    region = [90, 140, 15, 55]
     ax.set_extent(region, crs=proj)
 
     # 设置地图属性:加载国界、海岸线、河流、湖泊
@@ -75,14 +110,11 @@ for index in indices:
     gl.yformatter = LATITUDE_FORMATTER
 
     # 获取降水数据、经度和纬度
-    lon = data126['lon']
-    lat = data126['lat']
-    print(trend)
-    print(lon)
-    print(lat)
+    lon = data126['level_0']
+    lat = data126['level_1']
 
     # 绘制降水数据的轮廓填充
-    cf = ax.pcolormesh(lon, lat, trend, cmap=custom_cmap, norm=norm)
+    cf = ax.pcolormesh(lon, lat, slope, cmap=custom_cmap, norm=norm, shading='goraud')
 
     # 添加海岸线
     # ax.add_feature(cfeature.COASTLINE, linewidth=0.5, edgecolor='black')
@@ -94,7 +126,7 @@ for index in indices:
     for geom in china:
         ax.add_geometries([geom], ccrs.PlateCarree(), facecolor='none', edgecolor='black', linewidth=0.5, zorder=1)
 
-    ##添加南海
+    '''##添加南海
     sub_ax = fig.add_axes([0.70, 0.20, 0.20, 0.20], projection=proj)
     sub_ax.set_extent([105, 125, 0, 25], crs=ccrs.PlateCarree())
     sub_ax.add_feature(cfeature.COASTLINE.with_scale('50m'))
@@ -102,7 +134,7 @@ for index in indices:
     sub_ax.add_feature(cfeature.COASTLINE.with_scale('50m'), linewidth=0.6, zorder=1)
     china = shpreader.Reader('E:/GEO/geodata/bou2_4l.dbf').geometries()
     for geom in china:
-        sub_ax.add_geometries([geom], ccrs.PlateCarree(), facecolor='none', edgecolor='black', linewidth=0.5, zorder=1)
+        sub_ax.add_geometries([geom], ccrs.PlateCarree(), facecolor='none', edgecolor='black', linewidth=0.5, zorder=1)'''
 
     ''''# 设置标题
     ax.set_title(f'SSP {ssp} - {index}', fontsize=12)'''
@@ -113,6 +145,5 @@ for index in indices:
     cbar.ax.set_yticklabels(labels)
     '''
     # 显示图形
-    plt.show()
-    #plt.savefig(f'E:/GEO/result/new/pic/{index}_mktest_trend.png', dpi=600, bbox_inches='tight')
+    plt.savefig(f'E:/GEO/result/ecm/pic/{index}_mktest_slope.png', dpi=600, bbox_inches='tight')
     plt.close()

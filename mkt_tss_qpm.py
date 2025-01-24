@@ -17,16 +17,20 @@ def perform_mk_test(ssp, index, lon, lat):
     totest = np.array([])  # 用于存储数据的数组
     for year in years:
         data_path = f'E:/GEO/etccdi/qpm/mme/ecm/{index}_{ssp}_{year}.nc'
-        data = xr.open_dataset(data_path)['__xarray_dataarray_variable__'].sel(lon=lon, lat=lat)
+        dataset = xr.open_dataset(data_path)
+        data = dataset['__xarray_dataarray_variable__'].sel(lon=lon, lat=lat)
         totest = np.append(totest, data)
+
+    if totest.size == 0:  # 检查数据点数量
+        return (lon, lat, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan)
+
     try:
         mk_result = mk.original_test(totest)
         trend, _, p, z, Tau, s, var_s, slope, intercept = mk_result
-        # 转换trend为0, 1, -1
         trend_value = 0 if trend == 'no trend' else 1 if trend == 'increasing' else -1
         return (lon, lat, trend_value, p, z, Tau, s, var_s, slope, intercept)
     except ZeroDivisionError:
-        return None
+        return (lon, lat, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan)
 
 
 if __name__ == '__main__':
@@ -61,4 +65,8 @@ if __name__ == '__main__':
                 mk_results_df.columns = ['trend', 'p', 'z', 'Tau', 's', 'var_s', 'slope', 'intercept']
 
                 # 将数据帧保存为 NetCDF 文件
-                mk_results_df.to_xarray().to_netcdf(f'E:/GEO/result/ecm/{ssp}{index}_mktest.nc')
+                data_path = f'E:/GEO/etccdi/qpm/mme/ecm/{index}_{ssp}_2025.nc'
+                dataset = xr.open_dataset(data_path)
+                mk_result_xr = mk_results_df.to_xarray()
+                mk_result_xr = mk_result_xr.assign_coords(lon=dataset.lon, lat=dataset.lat)
+                mk_result_xr.to_netcdf(f'E:/GEO/result/ecm/{ssp}{index}_mktest.nc')
