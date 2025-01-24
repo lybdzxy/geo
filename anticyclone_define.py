@@ -7,11 +7,11 @@ from collections import defaultdict
 import matplotlib.pyplot as plt
 
 # 加载数据
-file_path = 'E:/GEO/test/test_1.nc'  # 替换为你的nc文件路径
+file_path = 'E:/GEO/test/test_slp.nc'  # 替换为你的nc文件路径
 data = xr.open_dataset(file_path)
 
 # 提取地表气压数据
-pressure_data = data['sp'].squeeze().values  # 删除时间维度
+pressure_data = data['msl'].squeeze().values  # 删除时间维度
 latitudes = data['latitude'].values
 longitudes = data['longitude'].values
 

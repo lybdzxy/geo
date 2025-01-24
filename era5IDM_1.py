@@ -24,7 +24,13 @@ if __name__ == '__main__':
     # 数据信息字典
     dic = {
     "product_type": ["reanalysis"],
-    "variable": ["vorticity"],
+    "variable": ["surface_pressure"],
+    "month": [
+        "01", "02", "03",
+        "04", "05", "06",
+        "07", "08", "09",
+        "10", "11", "12"
+    ],
     "day": [
         "01", "02", "03",
         "04", "05", "06",
@@ -43,19 +49,15 @@ if __name__ == '__main__':
         "09:00", "12:00", "15:00",
         "18:00", "21:00"
     ],
-    "pressure_level": ["1000"],
     "data_format": "netcdf",
     "download_format": "unarchived"
-}.values()
+}
 
-    for y in range(2000,2014):  # 遍历年
+    for y in range(2004,2014):  # 遍历年
         dic['year'] = str(y)
-        for m in range(1,13):
-            dic['month'] = str(m)
 
-            r = c.retrieve("reanalysis-era5-single-levels", dic, )  # 文件下载器
-            # 打印 result 对象的结构以查找下载 URL
-            url = r.location  # 获取文件下载地址
-            path = r'D:\testidm'  # 存放文件夹
-            filename = 'slp' + str(y) + str(m) + '.nc'  # 文件名
-            idmDownloader(url, path, filename)  # 添加进IDM中下载
+        r = c.retrieve("reanalysis-era5-single-levels", dic, )  # 文件下载器
+        url = r.location  # 获取文件下载地址
+        path = r'E:\testidm'  # 存放文件夹
+        filename = 'sp' + str(y) + '.nc'  # 文件名
+        idmDownloader(url, path, filename)  # 添加进IDM中下载

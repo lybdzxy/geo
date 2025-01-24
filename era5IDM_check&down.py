@@ -1,6 +1,6 @@
+import os
 import cdsapi
 from subprocess import call
-
 
 def idmDownloader(task_url, folder_path, file_name):
     """
@@ -39,23 +39,26 @@ if __name__ == '__main__':
         "31"
     ],
     "time": [
-        "00:00", "03:00", "06:00",
-        "09:00", "12:00", "15:00",
-        "18:00", "21:00"
+        "00:00", "03:00", "06:00","09:00",
+        "12:00", "15:00", "18:00","21:00"
     ],
-    "pressure_level": ["1000"],
+    "pressure_level": ["850"],
     "data_format": "netcdf",
     "download_format": "unarchived"
-}.values()
+}
 
-    for y in range(2000,2014):  # 遍历年
-        dic['year'] = str(y)
+    path = r'D:\testidm\850hpa'  # 存放文件夹
+    for y in range(1980,2024):  # 遍历年
         for m in range(1,13):
-            dic['month'] = str(m)
-
-            r = c.retrieve("reanalysis-era5-single-levels", dic, )  # 文件下载器
-            # 打印 result 对象的结构以查找下载 URL
-            url = r.location  # 获取文件下载地址
-            path = r'D:\testidm'  # 存放文件夹
-            filename = 'slp' + str(y) + str(m) + '.nc'  # 文件名
-            idmDownloader(url, path, filename)  # 添加进IDM中下载
+            filename = '850rvort' + str(y) + str(m) + '.nc'  # 文件名
+            filepath = os.path.join(path,filename)
+            if os.path.isfile(filepath):
+                continue
+            else:
+                print(filepath,'no exist')
+                dic['month'] = str(m)
+                dic['year'] = str(y)
+                r = c.retrieve("reanalysis-era5-pressure-levels", dic, )  # 文件下载器
+                # 打印 result 对象的结构以查找下载 URL
+                url = r.location  # 获取文件下载地址
+                idmDownloader(url, path, filename)  # 添加进IDM中下载'''
